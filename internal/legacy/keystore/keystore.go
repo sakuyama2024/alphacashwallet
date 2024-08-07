@@ -487,18 +487,14 @@ func (net *netParams) ReadFrom(r io.Reader) (int64, error) {
 		return n64, err
 	}
 
-	switch wire.BitcoinNet(binary.LittleEndian.Uint32(uint32Bytes)) {
+	switch wire.AlphaNet(binary.LittleEndian.Uint32(uint32Bytes)) {
 	case wire.MainNet:
 		*net = (netParams)(chaincfg.MainNetParams)
-	case wire.TestNet3:
-		*net = (netParams)(chaincfg.TestNet3Params)
+	case wire.TestNet:
+		*net = (netParams)(chaincfg.TestNetParams)
 	case wire.SimNet:
 		*net = (netParams)(chaincfg.SimNetParams)
 
-	// The legacy key store won't be compatible with custom signets, only
-	// the main public one.
-	case chaincfg.SigNetParams.Net:
-		*net = (netParams)(chaincfg.SigNetParams)
 	default:
 		return n64, errors.New("unknown network")
 	}

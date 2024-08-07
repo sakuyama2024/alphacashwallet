@@ -14,7 +14,6 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcwallet/internal/zero"
-	"github.com/btcsuite/btcwallet/netparams"
 	"github.com/btcsuite/btcwallet/walletdb"
 	"github.com/lightninglabs/neutrino/cache/lru"
 )
@@ -2520,9 +2519,7 @@ func (s *ScopedKeyManager) cloneKeyWithVersion(key *hdkeychain.ExtendedKey) (
 			return nil, fmt.Errorf("unsupported scope %v", s.scope)
 		}
 
-	case wire.TestNet, wire.TestNet3,
-		netparams.SigNetWire(s.rootManager.ChainParams()):
-
+	case wire.TestNet:
 		switch s.scope {
 		case KeyScopeBIP0044, KeyScopeBIP0086:
 			version = HDVersionTestNetBIP0044

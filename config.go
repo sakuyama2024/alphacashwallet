@@ -5,7 +5,6 @@
 package main
 
 import (
-	"encoding/hex"
 	"fmt"
 	"net"
 	"os"
@@ -17,7 +16,6 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcwallet/internal/cfgutil"
 	"github.com/btcsuite/btcwallet/internal/legacy/keystore"
 	"github.com/btcsuite/btcwallet/netparams"
@@ -370,47 +368,9 @@ func loadConfig() (*config, []string, error) {
 		activeNet = &netparams.SimNetParams
 		numNets++
 	}
-	if cfg.SigNet {
-		activeNet = &netparams.SigNetParams
-		numNets++
 
-		// Let the user overwrite the default signet parameters. The
-		// challenge defines the actual signet network to join and the
-		// seed nodes are needed for network discovery.
-		sigNetChallenge := chaincfg.DefaultSignetChallenge
-		sigNetSeeds := chaincfg.DefaultSignetDNSSeeds
-		if cfg.SigNetChallenge != "" {
-			challenge, err := hex.DecodeString(cfg.SigNetChallenge)
-			if err != nil {
-				str := "%s: Invalid signet challenge, hex " +
-					"decode failed: %v"
-				err := fmt.Errorf(str, funcName, err)
-				fmt.Fprintln(os.Stderr, err)
-				fmt.Fprintln(os.Stderr, usageMessage)
-				return nil, nil, err
-			}
-			sigNetChallenge = challenge
-		}
-
-		if len(cfg.SigNetSeedNode) > 0 {
-			sigNetSeeds = make(
-				[]chaincfg.DNSSeed, len(cfg.SigNetSeedNode),
-			)
-			for idx, seed := range cfg.SigNetSeedNode {
-				sigNetSeeds[idx] = chaincfg.DNSSeed{
-					Host:         seed,
-					HasFiltering: false,
-				}
-			}
-		}
-
-		chainParams := chaincfg.CustomSignetParams(
-			sigNetChallenge, sigNetSeeds,
-		)
-		activeNet.Params = &chainParams
-	}
 	if numNets > 1 {
-		str := "%s: The testnet, signet and simnet params can't be " +
+		str := "%s: The testnet and simnet params can't be " +
 			"used together -- choose one"
 		err := fmt.Errorf(str, "loadConfig")
 		fmt.Fprintln(os.Stderr, err)

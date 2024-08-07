@@ -102,7 +102,6 @@ var rpcHandlers = map[string]struct {
 	"sendmany":               {handler: sendMany},
 	"sendtoaddress":          {handler: sendToAddress},
 	"settxfee":               {handler: setTxFee},
-	"signmessage":            {handler: signMessage},
 	"signrawtransaction":     {handlerWithChain: signRawTransaction},
 	"validateaddress":        {handler: validateAddress},
 	"verifymessage":          {handler: verifyMessage},
@@ -1554,33 +1553,6 @@ func setTxFee(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 
 	// A boolean true result is returned upon success.
 	return true, nil
-}
-
-// signMessage signs the given message with the private key for the given
-// address
-func signMessage(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
-	cmd := icmd.(*btcjson.SignMessageCmd)
-
-	addr, err := decodeAddress(cmd.Address, w.ChainParams())
-	if err != nil {
-		return nil, err
-	}
-
-	privKey, err := w.PrivKeyForAddress(addr)
-	if err != nil {
-		return nil, err
-	}
-
-	var buf bytes.Buffer
-	_ = wire.WriteVarString(&buf, 0, "Bitcoin Signed Message:\n")
-	_ = wire.WriteVarString(&buf, 0, cmd.Message)
-	messageHash := chainhash.DoubleHashB(buf.Bytes())
-	sigbytes, err := ecdsa.SignCompact(privKey, messageHash, true)
-	if err != nil {
-		return nil, err
-	}
-
-	return base64.StdEncoding.EncodeToString(sigbytes), nil
 }
 
 // signRawTransaction handles the signrawtransaction command.

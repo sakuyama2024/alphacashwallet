@@ -376,19 +376,17 @@ func getBlockHashDuringStartup(
 }
 
 // getCurrentNet returns the network on which the bitcoind node is running.
-func getCurrentNet(client *rpcclient.Client) (wire.BitcoinNet, error) {
+func getCurrentNet(client *rpcclient.Client) (wire.AlphaNet, error) {
 	hash, err := getBlockHashDuringStartup(client)
 	if err != nil {
 		return 0, err
 	}
 
 	switch *hash {
-	case *chaincfg.TestNet3Params.GenesisHash:
-		return chaincfg.TestNet3Params.Net, nil
+	case *chaincfg.TestNetParams.GenesisHash:
+		return chaincfg.TestNetParams.Net, nil
 	case *chaincfg.RegressionNetParams.GenesisHash:
 		return chaincfg.RegressionNetParams.Net, nil
-	case *chaincfg.SigNetParams.GenesisHash:
-		return chaincfg.SigNetParams.Net, nil
 	case *chaincfg.MainNetParams.GenesisHash:
 		return chaincfg.MainNetParams.Net, nil
 	default:
